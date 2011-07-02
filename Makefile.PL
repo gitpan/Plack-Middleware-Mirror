@@ -14,7 +14,9 @@ my %WriteMakefileArgs = (
   'BUILD_REQUIRES' => {
     'File::Find' => '0',
     'File::Temp' => '0',
+    'HTTP::Request::Common' => '0',
     'ExtUtils::MakeMaker' => '6.30',
+    'Plack::Test' => '0',
     'Test::More' => '0.96'
   },
   'CONFIGURE_REQUIRES' => {
@@ -25,14 +27,14 @@ my %WriteMakefileArgs = (
   'LICENSE' => 'perl',
   'NAME' => 'Plack::Middleware::Mirror',
   'PREREQ_PM' => {
-    'File::Basename' => '0',
     'File::Path' => '0',
+    'Path::Class' => '0.24',
     'Plack::Middleware' => '0',
     'Plack::Util' => '0',
     'Plack::Util::Accessor' => '0',
     'parent' => '0'
   },
-  'VERSION' => '0.100',
+  'VERSION' => '0.200',
   'test' => {
     'TESTS' => 't/*.t'
   }

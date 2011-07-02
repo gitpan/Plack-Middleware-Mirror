@@ -12,7 +12,7 @@ use warnings;
 
 package Plack::Middleware::Mirror;
 BEGIN {
-  $Plack::Middleware::Mirror::VERSION = '0.100';
+  $Plack::Middleware::Mirror::VERSION = '0.200';
 }
 BEGIN {
   $Plack::Middleware::Mirror::AUTHORITY = 'cpan:RWSTAUNER';
@@ -21,40 +21,42 @@ BEGIN {
 
 use parent 'Plack::Middleware';
 use Plack::Util;
-use Plack::Util::Accessor qw(path mirror_dir debug);
+use Plack::Util::Accessor qw( path mirror_dir debug );
 
-use File::Path qw(make_path);;
-use File::Basename ();
+use File::Path ();
+use Path::Class 0.24 ();
 
 sub call {
   my ($self, $env) = @_;
 
-  my $matches = $self->path or return;
-  $matches = [ $matches ] unless ref $matches eq 'ARRAY';
-
-  # what is the best way to get this value?
-  # Plack::Request->new($env)->path;
-  my $path_info = $env->{PATH_INFO};
-
-  for my $match (@$matches) {
-    return $self->_save_response($env, $path_info)
-      if ref($match) eq 'CODE' ? $match->($path_info) : $path_info =~ $match;
-  }
-  return $self->app->($env);
+  # if we decide not to save fall through to wrapped app
+  return $self->_save_response($env) || $self->app->($env);
 }
 
 sub _save_response {
-  my ($self, $env, $path_info) = @_;
+  my ($self, $env) = @_;
+
+  # this path matching stuff stolen straight from Plack::Middleware::Static
+  my $path_match = $self->path or return;
+  my $path = $env->{PATH_INFO};
+
+  for ($path) {
+    my $matched = 'CODE' eq ref $path_match ? $path_match->($_) : $_ =~ $path_match;
+    return unless $matched;
+  }
+
   # TODO: should we use Cwd here?
   my $dir = $self->mirror_dir || 'mirror';
 
-  # TODO: use File::Spec
-  my $file = $dir . $path_info;
+  my $file = Path::Class::File->new($dir, split(/\//, $path));
+  my $fdir = $file->parent;
+  $file = $file->stringify;
+
   # FIXME: do we need to append to $response->[2] manually?
   my $content = '';
 
   # TODO: use logger?
-  print STDERR ref($self) . " mirror: $path_info ($file)\n"
+  print STDERR ref($self) . " mirror: $path ($file)\n"
     if $self->debug;
 
   # fall back to normal request, but intercept response and save it
@@ -68,13 +70,12 @@ sub _save_response {
 
         # end of content
         if ( !defined $chunk ) {
-          # TODO: there must be something more appropriate than dirname()
-          my $fdir = File::Basename::dirname($file);
-          make_path($fdir) unless -d $fdir;
 
           # if writing to the file fails, don't kill the request
+          # (we'll try again next time anyway)
           local $@;
           eval {
+            File::Path::mkpath($fdir, 0, oct(777)) unless -d $fdir;
             open(my $fh, '>', $file)
               or die "Failed to open '$file': $!";
             binmode($fh);
@@ -109,7 +110,7 @@ Plack::Middleware::Mirror - Save responses to disk to mirror a site
 
 =head1 VERSION
 
-version 0.100
+version 0.200
 
 =head1 SYNOPSIS
 
@@ -125,10 +126,30 @@ version 0.100
     # your app...
   };
 
+
+  # A specific example: Build your own mirror
+
+  # app.psgi
+  use Plack::Builder;
+
+  builder {
+    # serve the request from the disk if it exists
+    enable Static =>
+      path => $config->{match_uri},
+      root => $config->{mirror_dir},
+      pass_through => 1;
+    # if it doesn't exist yet, request it and save it
+    enable Mirror =>
+      path => $config->{match_uri},
+      mirror_dir => $config->{mirror_dir};
+    Plack::App::Proxy->new( remote => $config->{remote_uri} )->to_app
+  };
+
 =head1 DESCRIPTION
 
-  NOTE: This is currently considered alpha quality.
-  Only the simplest case has been considered.
+  NOTE: This module is in an alpha stage.
+  Only the simplest case of static file request has been considered.
+  Handling of anything with a QUERY_STRING is currently undefined.
   Suggestions, patches, and pull requests are welcome.
 
 This middleware will save the content of the response
@@ -144,6 +165,17 @@ to the disk preserving the file name and directory structure.
 This creates a physical mirror of the site so that you can do other
 things with the directory structure if you desire.
 
+This is probably most useful when combined with
+L<Plack::Middleware::Static> and
+L<Plack::App::Proxy>
+to build up a mirror of another site transparently,
+downloading only the files you actually request
+instead of having to spider the whole site.
+
+However if you have a reason to copy the responses from your own web app
+onto disk you're certainly free to do so
+(a interesting form of backup perhaps).
+
 C<NOTE>: This middleware does not short-circuit the request
 (as L<Plack::Middleware::Cache> does), so if there is no other middleware
 to stop the request this module will let the request continue and
@@ -151,6 +183,23 @@ save the latest version of the response each time.
 This is considered a feature.
 
 =for test_synopsis my ($config, $match, $dir);
+
+=head1 OPTIONS
+
+=head2 path
+
+This specifies the condition used to match the request (C<PATH_INFO>).
+It can be either a regular expression
+or a callback (code ref) that can match against C<$_> or even modify it
+to alter the path of the file that will be saved to disk.
+
+It works just like
+L<< the C<path> argument to Plack::Middleware::Static|Plack::Middleware::Static/CONFIGURATIONS >>
+since the code was stolen right from there.
+
+=head2 mirror_dir
+
+This is the directory beneath which files will be saved.
 
 =head1 TODO
 
@@ -166,11 +215,11 @@ Tests
 
 =item *
 
-Use L<File::Spec>, etc to make it more cross-platform
+Determine how this (should) work(s) with non-static resources (query strings)
 
 =item *
 
-Determine how this (should) work(s) with non-static resources (query strings)
+Create C<Plack::App::Mirror> to simplify creating simple site mirrors.
 
 =back
 
@@ -181,6 +230,14 @@ Determine how this (should) work(s) with non-static resources (query strings)
 =item *
 
 L<Plack::Middleware::Cache>
+
+=item *
+
+L<Plack::Middleware::Static>
+
+=item *
+
+L<Plack::App::Proxy>
 
 =back
 

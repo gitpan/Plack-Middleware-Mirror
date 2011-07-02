@@ -43,8 +43,8 @@
       },
       "runtime" : {
          "requires" : {
-            "File::Basename" : 0,
             "File::Path" : 0,
+            "Path::Class" : "0.24",
             "Plack::Middleware" : 0,
             "Plack::Util" : 0,
             "Plack::Util::Accessor" : 0,
@@ -56,6 +56,8 @@
          "requires" : {
             "File::Find" : 0,
             "File::Temp" : 0,
+            "HTTP::Request::Common" : 0,
+            "Plack::Test" : 0,
             "Test::More" : "0.96"
          }
       }
@@ -63,7 +65,7 @@
    "provides" : {
       "Plack::Middleware::Mirror" : {
          "file" : "lib/Plack/Middleware/Mirror.pm",
-         "version" : "0.100"
+         "version" : "0.200"
       }
    },
    "release_status" : "stable",
@@ -79,7 +81,7 @@
          "web" : "http://github.com/magnificent-tears/Plack-Middleware-Mirror"
       }
    },
-   "version" : "0.100",
+   "version" : "0.200",
    "x_Dist_Zilla" : {
       "plugins" : [
          {
@@ -241,7 +243,7 @@
          {
             "class" : "Dist::Zilla::Plugin::ReportVersions::Tiny",
             "name" : "@Author::RWSTAUNER/ReportVersions::Tiny",
-            "version" : "1.03_02"
+            "version" : "1.03_01"
          },
          {
             "class" : "Dist::Zilla::Plugin::PodSpellingTests",

@@ -48,12 +48,14 @@ sub pmver {
     return sprintf('%-45s => %-10s%-15s%s', $module, $pmver, $wanted, "\n");
 }
 
-eval { $v .= pmver('File::Basename','any version') };
 eval { $v .= pmver('File::Find','any version') };
 eval { $v .= pmver('File::Path','any version') };
 eval { $v .= pmver('File::Temp','any version') };
+eval { $v .= pmver('HTTP::Request::Common','any version') };
 eval { $v .= pmver('Module::Build','0.3601') };
+eval { $v .= pmver('Path::Class','0.24') };
 eval { $v .= pmver('Plack::Middleware','any version') };
+eval { $v .= pmver('Plack::Test','any version') };
 eval { $v .= pmver('Plack::Util','any version') };
 eval { $v .= pmver('Plack::Util::Accessor','any version') };
 eval { $v .= pmver('Test::More','0.96') };

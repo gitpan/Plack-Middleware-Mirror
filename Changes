@@ -1,5 +1,15 @@
 Revision history for Plack-Middleware-Mirror
 
+0.200     2011-07-02T22:26:10Z
+
+  - make 'path' option consistent with Plack::Middleware::Static
+  - use Path::Class to translate PATH_INFO to on-disk file name
+  - use legacy interface to File::Path for older installs
+
+  - Document specific example of building a simple mirror site
+    with Plack::Middleware::Static and Plack::App::Proxy
+  - Add tests
+
 0.100     2011-07-01T01:51:01Z
 
   - Initial release
