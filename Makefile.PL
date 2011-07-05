@@ -13,11 +13,13 @@ my %WriteMakefileArgs = (
   'AUTHOR' => 'Randy Stauner <rwstauner@cpan.org>',
   'BUILD_REQUIRES' => {
     'File::Find' => '0',
+    'File::Spec::Functions' => '0',
     'File::Temp' => '0',
     'HTTP::Request::Common' => '0',
     'ExtUtils::MakeMaker' => '6.30',
     'Plack::Test' => '0',
-    'Test::More' => '0.96'
+    'Test::More' => '0.88',
+    'Time::Local' => '0'
   },
   'CONFIGURE_REQUIRES' => {
     'ExtUtils::MakeMaker' => '6.30'
@@ -28,13 +30,14 @@ my %WriteMakefileArgs = (
   'NAME' => 'Plack::Middleware::Mirror',
   'PREREQ_PM' => {
     'File::Path' => '0',
-    'Path::Class' => '0.24',
+    'File::Spec' => '0',
+    'HTTP::Date' => '0',
     'Plack::Middleware' => '0',
     'Plack::Util' => '0',
     'Plack::Util::Accessor' => '0',
     'parent' => '0'
   },
-  'VERSION' => '0.200',
+  'VERSION' => '0.300',
   'test' => {
     'TESTS' => 't/*.t'
   }

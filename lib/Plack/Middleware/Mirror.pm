@@ -12,7 +12,7 @@ use warnings;
 
 package Plack::Middleware::Mirror;
 BEGIN {
-  $Plack::Middleware::Mirror::VERSION = '0.200';
+  $Plack::Middleware::Mirror::VERSION = '0.300';
 }
 BEGIN {
   $Plack::Middleware::Mirror::AUTHORITY = 'cpan:RWSTAUNER';
@@ -22,9 +22,10 @@ BEGIN {
 use parent 'Plack::Middleware';
 use Plack::Util;
 use Plack::Util::Accessor qw( path mirror_dir debug );
+use HTTP::Date ();
 
 use File::Path ();
-use Path::Class 0.24 ();
+use File::Spec ();
 
 sub call {
   my ($self, $env) = @_;
@@ -48,11 +49,9 @@ sub _save_response {
   # TODO: should we use Cwd here?
   my $dir = $self->mirror_dir || 'mirror';
 
-  my $file = Path::Class::File->new($dir, split(/\//, $path));
-  my $fdir = $file->parent;
-  $file = $file->stringify;
+  my $file = File::Spec->catfile($dir, split(/\//, $path));
+  my $fdir = File::Spec->catdir( (File::Spec->splitpath($file))[0, 1] ); # dirname()
 
-  # FIXME: do we need to append to $response->[2] manually?
   my $content = '';
 
   # TODO: use logger?
@@ -63,7 +62,7 @@ sub _save_response {
   return $self->response_cb(
     $self->app->($env),
     sub {
-      #my ($response) = @_;
+      my ($res) = @_;
       # content filter
       return sub {
         my ($chunk) = @_;
@@ -81,7 +80,19 @@ sub _save_response {
             binmode($fh);
             print $fh $content
               or die "Failed to write to '$file': $!";
-            # TODO: utime the file with Last-Modified
+            # explicitly close fh so we can set the mtime below
+            close($fh)
+              or die "Failed to close '$file': $!";
+
+            # copy mtime to file if available
+            if ( my $lm = Plack::Util::header_get($$res[1], 'Last-Modified') ) {
+              $lm =~ s/;.*//; # strip off any extra (copied from HTTP::Headers)
+              # may return undef which we could pass to utime, but why bother?
+              # zero (epoch) may be unlikely but is possible
+              if ( defined(my $ts = HTTP::Date::str2time($lm)) ) {
+                utime( $ts, $ts, $file );
+              }
+            }
           };
           warn $@ if $@;
         }
@@ -110,7 +121,7 @@ Plack::Middleware::Mirror - Save responses to disk to mirror a site
 
 =head1 VERSION
 
-version 0.200
+version 0.300
 
 =head1 SYNOPSIS
 
@@ -204,14 +215,6 @@ This is the directory beneath which files will be saved.
 =head1 TODO
 
 =over 4
-
-=item *
-
-C<utime> the mirrored file using Last-Modified
-
-=item *
-
-Tests
 
 =item *
 

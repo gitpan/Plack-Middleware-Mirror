@@ -4,11 +4,13 @@ author:
   - 'Randy Stauner <rwstauner@cpan.org>'
 build_requires:
   File::Find: 0
+  File::Spec::Functions: 0
   File::Temp: 0
   HTTP::Request::Common: 0
   Module::Build: 0.3601
   Plack::Test: 0
-  Test::More: 0.96
+  Test::More: 0.88
+  Time::Local: 0
 configure_requires:
   Module::Build: 0.3601
 dynamic_config: 0
@@ -34,10 +36,11 @@ no_index:
 provides:
   Plack::Middleware::Mirror:
     file: lib/Plack/Middleware/Mirror.pm
-    version: 0.200
+    version: 0.300
 requires:
   File::Path: 0
-  Path::Class: 0.24
+  File::Spec: 0
+  HTTP::Date: 0
   Plack::Middleware: 0
   Plack::Util: 0
   Plack::Util::Accessor: 0
@@ -47,7 +50,7 @@ resources:
   bugtracker: http://rt.cpan.org/Public/Dist/Display.html?Name=Plack-Middleware-Mirror
   homepage: http://github.com/magnificent-tears/Plack-Middleware-Mirror
   repository: http://github.com/magnificent-tears/Plack-Middleware-Mirror
-version: 0.200
+version: 0.300
 x_Dist_Zilla:
   plugins:
     -
@@ -77,6 +80,10 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::PruneFiles
       name: '@Author::RWSTAUNER/PruneRepoMetaFiles'
+      version: 4.200008
+    -
+      class: Dist::Zilla::Plugin::PruneFiles
+      name: '@Author::RWSTAUNER/PruneDevelCoverDatabase'
       version: 4.200008
     -
       class: Dist::Zilla::Plugin::Authority
@@ -145,14 +152,6 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::MetaJSON
       name: '@Author::RWSTAUNER/MetaJSON'
-      version: 4.200008
-    -
-      class: Dist::Zilla::Plugin::Prereqs
-      config:
-        Dist::Zilla::Plugin::Prereqs:
-          phase: test
-          type: requires
-      name: '@Author::RWSTAUNER/TestMoreWithSubtests'
       version: 4.200008
     -
       class: Dist::Zilla::Plugin::ExecDir

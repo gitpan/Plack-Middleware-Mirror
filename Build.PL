@@ -8,11 +8,13 @@ use Module::Build 0.3601;
 my %module_build_args = (
   'build_requires' => {
     'File::Find' => '0',
+    'File::Spec::Functions' => '0',
     'File::Temp' => '0',
     'HTTP::Request::Common' => '0',
     'Module::Build' => '0.3601',
     'Plack::Test' => '0',
-    'Test::More' => '0.96'
+    'Test::More' => '0.88',
+    'Time::Local' => '0'
   },
   'configure_requires' => {
     'Module::Build' => '0.3601'
@@ -22,14 +24,15 @@ my %module_build_args = (
     'Randy Stauner <rwstauner@cpan.org>'
   ],
   'dist_name' => 'Plack-Middleware-Mirror',
-  'dist_version' => '0.200',
+  'dist_version' => '0.300',
   'license' => 'perl',
   'module_name' => 'Plack::Middleware::Mirror',
   'recommends' => {},
   'recursive_test_files' => 1,
   'requires' => {
     'File::Path' => '0',
-    'Path::Class' => '0.24',
+    'File::Spec' => '0',
+    'HTTP::Date' => '0',
     'Plack::Middleware' => '0',
     'Plack::Util' => '0',
     'Plack::Util::Accessor' => '0',

@@ -50,15 +50,18 @@ sub pmver {
 
 eval { $v .= pmver('File::Find','any version') };
 eval { $v .= pmver('File::Path','any version') };
+eval { $v .= pmver('File::Spec','any version') };
+eval { $v .= pmver('File::Spec::Functions','any version') };
 eval { $v .= pmver('File::Temp','any version') };
+eval { $v .= pmver('HTTP::Date','any version') };
 eval { $v .= pmver('HTTP::Request::Common','any version') };
 eval { $v .= pmver('Module::Build','0.3601') };
-eval { $v .= pmver('Path::Class','0.24') };
 eval { $v .= pmver('Plack::Middleware','any version') };
 eval { $v .= pmver('Plack::Test','any version') };
 eval { $v .= pmver('Plack::Util','any version') };
 eval { $v .= pmver('Plack::Util::Accessor','any version') };
-eval { $v .= pmver('Test::More','0.96') };
+eval { $v .= pmver('Test::More','0.88') };
+eval { $v .= pmver('Time::Local','any version') };
 eval { $v .= pmver('parent','any version') };
 
 
