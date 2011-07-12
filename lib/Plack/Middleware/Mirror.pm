@@ -12,7 +12,7 @@ use warnings;
 
 package Plack::Middleware::Mirror;
 BEGIN {
-  $Plack::Middleware::Mirror::VERSION = '0.300';
+  $Plack::Middleware::Mirror::VERSION = '0.400';
 }
 BEGIN {
   $Plack::Middleware::Mirror::AUTHORITY = 'cpan:RWSTAUNER';
@@ -21,7 +21,7 @@ BEGIN {
 
 use parent 'Plack::Middleware';
 use Plack::Util;
-use Plack::Util::Accessor qw( path mirror_dir debug );
+use Plack::Util::Accessor qw( path mirror_dir debug status_codes );
 use HTTP::Date ();
 
 use File::Path ();
@@ -32,6 +32,19 @@ sub call {
 
   # if we decide not to save fall through to wrapped app
   return $self->_save_response($env) || $self->app->($env);
+}
+
+# is there any sort of logger available?
+sub debug_log {
+  my ($self, $message) = @_;
+  print STDERR ref($self) . " $message\n"
+    if $self->debug;
+}
+
+sub prepare_app {
+  my ($self) = @_;
+  $self->status_codes([200])
+    unless defined $self->status_codes;
 }
 
 sub _save_response {
@@ -54,8 +67,7 @@ sub _save_response {
 
   my $content = '';
 
-  # TODO: use logger?
-  print STDERR ref($self) . " mirror: $path ($file)\n"
+  $self->debug_log("preparing to mirror: $path")
     if $self->debug;
 
   # fall back to normal request, but intercept response and save it
@@ -63,6 +75,9 @@ sub _save_response {
     $self->app->($env),
     sub {
       my ($res) = @_;
+
+      return unless $self->should_mirror_status($res->[0]);
+
       # content filter
       return sub {
         my ($chunk) = @_;
@@ -70,11 +85,15 @@ sub _save_response {
         # end of content
         if ( !defined $chunk ) {
 
+          $self->debug_log("attempting to save: $path => $file")
+            if $self->debug;
+
           # if writing to the file fails, don't kill the request
           # (we'll try again next time anyway)
           local $@;
           eval {
             File::Path::mkpath($fdir, 0, oct(777)) unless -d $fdir;
+
             open(my $fh, '>', $file)
               or die "Failed to open '$file': $!";
             binmode($fh);
@@ -106,6 +125,24 @@ sub _save_response {
   );
 }
 
+sub should_mirror_status {
+  my ( $self, $res_code ) = @_;
+  my $codes = $self->status_codes || [ 200 ];
+
+  # if codes is an empty arrayref don't restrict by code, just allow all
+  return 1 if ! @$codes;
+
+  # if status code is one of the accepted codes, return true
+  foreach my $code ( @$codes ) {
+    return 1 if $res_code == $code;
+  }
+
+  # if none of the above is true don't mirror
+  $self->debug_log("ignoring unwanted status ($res_code)")
+    if $self->debug;
+  return 0;
+}
+
 1;
 
 
@@ -121,7 +158,7 @@ Plack::Middleware::Mirror - Save responses to disk to mirror a site
 
 =head1 VERSION
 
-version 0.300
+version 0.400
 
 =head1 SYNOPSIS
 
@@ -193,6 +230,8 @@ to stop the request this module will let the request continue and
 save the latest version of the response each time.
 This is considered a feature.
 
+=for Pod::Coverage debug_log should_mirror_status
+
 =for test_synopsis my ($config, $match, $dir);
 
 =head1 OPTIONS
@@ -212,9 +251,25 @@ since the code was stolen right from there.
 
 This is the directory beneath which files will be saved.
 
+=head2 status_codes
+
+This to an array ref of acceptable status codes to mirror.
+The default is C<[ 200 ]>
+which means that only a normal C<200 OK> response will be saved.
+
+Set this to an empty array ref (C<[]>) to mirror regardless of response code.
+
+=head2 debug
+
+Set this to true to print debugging statements to STDERR.
+
 =head1 TODO
 
 =over 4
+
+=item *
+
+Accept callbacks for response/content to determine if it should be mirrored
 
 =item *
 
