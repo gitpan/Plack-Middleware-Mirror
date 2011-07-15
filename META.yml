@@ -36,7 +36,7 @@ no_index:
 provides:
   Plack::Middleware::Mirror:
     file: lib/Plack/Middleware/Mirror.pm
-    version: 0.400
+    version: 0.401
 requires:
   File::Path: 0
   File::Spec: 0
@@ -48,9 +48,9 @@ requires:
   perl: 5.006
 resources:
   bugtracker: http://rt.cpan.org/Public/Dist/Display.html?Name=Plack-Middleware-Mirror
-  homepage: http://github.com/magnificent-tears/Plack-Middleware-Mirror
-  repository: http://github.com/magnificent-tears/Plack-Middleware-Mirror
-version: 0.400
+  homepage: http://github.com/rwstauner/Plack-Middleware-Mirror
+  repository: http://github.com/rwstauner/Plack-Middleware-Mirror
+version: 0.401
 x_Dist_Zilla:
   plugins:
     -
@@ -240,7 +240,7 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::Test::Pod::LinkCheck
       name: '@Author::RWSTAUNER/@TestingMania/Test::Pod::LinkCheck'
-      version: 1.000
+      version: 1.001
     -
       class: Dist::Zilla::Plugin::NoTabsTests
       name: '@Author::RWSTAUNER/@TestingMania/NoTabsTests'

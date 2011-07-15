@@ -68,7 +68,7 @@
    "provides" : {
       "Plack::Middleware::Mirror" : {
          "file" : "lib/Plack/Middleware/Mirror.pm",
-         "version" : "0.400"
+         "version" : "0.401"
       }
    },
    "release_status" : "stable",
@@ -77,14 +77,14 @@
          "mailto" : "bug-plack-middleware-mirror at rt.cpan.org",
          "web" : "http://rt.cpan.org/Public/Dist/Display.html?Name=Plack-Middleware-Mirror"
       },
-      "homepage" : "http://github.com/magnificent-tears/Plack-Middleware-Mirror",
+      "homepage" : "http://github.com/rwstauner/Plack-Middleware-Mirror",
       "repository" : {
          "type" : "git",
-         "url" : "http://github.com/magnificent-tears/Plack-Middleware-Mirror",
-         "web" : "http://github.com/magnificent-tears/Plack-Middleware-Mirror"
+         "url" : "http://github.com/rwstauner/Plack-Middleware-Mirror",
+         "web" : "http://github.com/rwstauner/Plack-Middleware-Mirror"
       }
    },
-   "version" : "0.400",
+   "version" : "0.401",
    "x_Dist_Zilla" : {
       "plugins" : [
          {
@@ -320,7 +320,7 @@
          {
             "class" : "Dist::Zilla::Plugin::Test::Pod::LinkCheck",
             "name" : "@Author::RWSTAUNER/@TestingMania/Test::Pod::LinkCheck",
-            "version" : "1.000"
+            "version" : "1.001"
          },
          {
             "class" : "Dist::Zilla::Plugin::NoTabsTests",

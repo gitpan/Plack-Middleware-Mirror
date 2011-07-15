@@ -12,7 +12,7 @@ use warnings;
 
 package Plack::Middleware::Mirror;
 BEGIN {
-  $Plack::Middleware::Mirror::VERSION = '0.400';
+  $Plack::Middleware::Mirror::VERSION = '0.401';
 }
 BEGIN {
   $Plack::Middleware::Mirror::AUTHORITY = 'cpan:RWSTAUNER';
@@ -158,7 +158,7 @@ Plack::Middleware::Mirror - Save responses to disk to mirror a site
 
 =head1 VERSION
 
-version 0.400
+version 0.401
 
 =head1 SYNOPSIS
 
@@ -373,9 +373,9 @@ progress on the request by the system.
 =head2 Source Code
 
 
-L<http://github.com/magnificent-tears/Plack-Middleware-Mirror>
+L<http://github.com/rwstauner/Plack-Middleware-Mirror>
 
-  git clone http://github.com/magnificent-tears/Plack-Middleware-Mirror
+  git clone http://github.com/rwstauner/Plack-Middleware-Mirror
 
 =head1 AUTHOR
 

@@ -24,7 +24,7 @@ my %module_build_args = (
     'Randy Stauner <rwstauner@cpan.org>'
   ],
   'dist_name' => 'Plack-Middleware-Mirror',
-  'dist_version' => '0.400',
+  'dist_version' => '0.401',
   'license' => 'perl',
   'module_name' => 'Plack::Middleware::Mirror',
   'recommends' => {},
